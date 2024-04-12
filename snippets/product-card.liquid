@@ -1,0 +1,41 @@
+{% if product.metafields.custom.video_url %}
+
+        <div href="{{ product.url }}" class="ProductItem__ImageWrapper custom_product_video">
+          {%- if use_horizontal -%}
+            {%- assign max_width = 125 -%}
+          {%- else -%}
+            {%- assign max_width = product.featured_media.preview_image.width -%}
+          {%- endif -%}
+
+          {%- assign media_aspect_ratio = product.featured_media.aspect_ratio | default: product.featured_media.preview_image.aspect_ratio -%}
+
+          <div class="AspectRatio AspectRatio--{% if use_natural_size %}withFallback{% else %}{{ settings.product_image_size }}{% endif %}" style="max-width: {{ max_width }}px; {% if use_natural_size %}padding-bottom: {{ 100.0 | divided_by: media_aspect_ratio }}%;{% endif %} --aspect-ratio: {{ media_aspect_ratio }}">
+            <div class="video-wrapping play_video">
+              <video autoplay muted loop playsinline src="{{ product.metafields.custom.video_url }}"></video>
+
+              <svg id="play_icon" class="play_icon_postion fade-in" enable-background="new 0 0 139 139" version="1.1" viewBox="0 0 139 139" width="139px" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M117.037,61.441L36.333,14.846c-2.467-1.424-5.502-1.424-7.972,0c-2.463,1.423-3.982,4.056-3.982,6.903v93.188  c0,2.848,1.522,5.479,3.982,6.9c1.236,0.713,2.61,1.067,3.986,1.067c1.374,0,2.751-0.354,3.983-1.067l80.704-46.594  c2.466-1.422,3.984-4.054,3.984-6.9C121.023,65.497,119.502,62.866,117.037,61.441z"/></svg>
+
+              <svg id="paused_icon" class="play_icon_postion fade-in" version="1.1" viewBox="0 0 512 512" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><g><path d="M224,435.8V76.1c0-6.7-5.4-12.1-12.2-12.1h-71.6c-6.8,0-12.2,5.4-12.2,12.1v359.7c0,6.7,5.4,12.2,12.2,12.2h71.6   C218.6,448,224,442.6,224,435.8z"/><path d="M371.8,64h-71.6c-6.7,0-12.2,5.4-12.2,12.1v359.7c0,6.7,5.4,12.2,12.2,12.2h71.6c6.7,0,12.2-5.4,12.2-12.2V76.1   C384,69.4,378.6,64,371.8,64z"/></g></svg>
+            </div>
+            
+          </div>
+        </div>
+      {% else %}
+      <a href="{{ product.url }}" class="product-card__media" data-instant>
+        {%- capture sizes -%}
+          {%- if stacked -%}
+            (max-width: 699px) calc(100vw / {{ section.settings.products_per_row_mobile }}), (max-width: 999px) calc(100vw / {{ 3 | at_most: section.settings.products_per_row_desktop | default: 3 }} - 64px), calc((100vw - 96px) / {{ section.settings.products_per_row_desktop | default: 3 }} - (24px / {{ section.settings.products_per_row_desktop | default: 3 }} * {{ section.settings.products_per_row_desktop | default: 3 | minus: 1 }}))
+          {%- else -%}
+            (max-width: 699px) 74vw, (max-width: 999px) 38vw, calc((100vw - 96px) / {{ section.settings.products_per_row_desktop | default: 3 }} - (24px / {{ section.settings.products_per_row_desktop | default: 3 }} * {{ section.settings.products_per_row_desktop | default: 3 | minus: 1 }}))
+          {%- endif -%}
+        {%- endcapture -%}
+
+        {%- capture main_image_classes -%}product-card__image product-card__image--primary {% if settings.product_image_aspect_ratio contains 'crop' %}object-cover{% endif %} aspect-{{ settings.product_image_aspect_ratio | split: '_' | first }}{%- endcapture -%}
+        {{- product.featured_media | image_url: width: product.featured_media.width | image_tag: loading: 'lazy', sizes: sizes, widths: '200,300,400,500,600,700,800,1000,1200,1400,1600,1800', class: main_image_classes -}}
+
+        {%- if show_secondary_image and product.media.size > 1 -%}
+          {%- assign next_media = product.media[product.featured_media.position] | default: product.media[1] -%}
+          {{- next_media | image_url: width: next_media.width | image_tag: class: 'product-card__image product-card__image--secondary', loading: 'lazy', fetchpriority: 'low', sizes: sizes, widths: '200,300,400,500,600,700,800,1000,1200,1400,1600,1800' -}}
+        {%- endif -%}
+      </a>
+      {% endif %}
